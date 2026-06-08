@@ -2,6 +2,13 @@
 
 集团合并现金流量表编制辅助工具。自动读取多家子公司的明细数据，按内部交易匹配规则生成抵消明细。
 
+## 下载
+
+**最新版 EXE 在 GitHub Releases 页面下载：**
+[https://github.com/000luc/cash-flow-consolidation-elimination/releases](https://github.com/000luc/cash-flow-consolidation-elimination/releases)
+
+下载后双击运行，通过浏览按钮选择各公司明细文件即可。
+
 ## 功能
 
 - 支持4家公司（计量/中安/曼哈格/博林达）明细文件，自动识别内部交易
@@ -13,22 +20,15 @@
 
 ### 方式一：直接运行 EXE（推荐）
 
-1. 下载 `dist/现金流内部抵消工具_v2.exe`
-2. 将 EXE 与 `明细/` 文件夹放在同一目录
-3. 双击运行，选择或确认4个明细文件路径
-4. 点击"开始处理"，完成后打开结果文件
+1. 从 [Releases](https://github.com/000luc/cash-flow-consolidation-elimination/releases) 下载 `现金流内部抵消工具_v2.exe`
+2. 双击运行，点击各文件旁的"浏览..."按钮选择对应明细文件
+3. 点击"开始处理"，完成后打开结果文件
 
 ### 方式二：Python 源码运行
 
 ```bash
 pip install openpyxl
 py cashflow_tool\__main__.py
-```
-
-### 方式三：命令行打包
-
-```bash
-build.bat
 ```
 
 ## 输出文件说明
@@ -66,7 +66,6 @@ build.bat
 │       ├── 曼哈格.py
 │       └── 博林达.py
 ├── tests/                   # 测试
-├── 明细/                    # 明细数据文件夹
 ├── dist/                    # 打包输出目录
 ├── build.bat                # PyInstaller 打包脚本
 └── requirements.txt
