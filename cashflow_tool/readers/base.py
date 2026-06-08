@@ -7,14 +7,21 @@ class BaseReader(ABC):
     """所有明细读取器的基类"""
 
     @abstractmethod
-    def read(self, filepath: str) -> tuple[list[CFRecord], list[CFRecord]]:
+    def read(self, filepath: str, dedup_set: set[tuple] | None = None
+             ) -> tuple[list[CFRecord], list[CFRecord]]:
         """
         读取明细文件，返回 (付款记录列表, 收款记录列表)
 
         每个子类自行处理自家格式的列映射、清理逻辑。
         filepath 已由 GUI 校验过存在性。
+        dedup_set: 曼哈格去重集合，匹配的记录跳过不纳入匹配池。
         """
         ...
+
+    @staticmethod
+    def make_dedup_key(company: str, cp: str, amount: float) -> tuple:
+        """生成去重key: (公司, 对方公司, 四舍五入金额)"""
+        return (BaseReader.clean_name(company), BaseReader.clean_name(cp), round(amount))
 
     @staticmethod
     def extract_cf_code(cf_text: str) -> str:
@@ -26,13 +33,22 @@ class BaseReader(ABC):
 
     @staticmethod
     def normalize_cf(cf_text: str, code_map: dict[str, str]) -> str:
-        """规范化CF文本：确保带有CI代码前缀"""
+        """规范化CF文本：确保带有CI代码前缀
+
+        code_map 格式为 {CI代码: 中文描述}，如 {'CI1.01.01.01': '销售商品...'}。
+        如果 cf_text 是纯中文描述（无CI前缀），从 map 倒查匹配并补上代码。
+        """
         if not cf_text:
             return ''
         cf_text = str(cf_text).strip()
         if re.match(r'CI\d+\.\d+\.\d+\.\d+', cf_text):
             return cf_text
-        for desc, code in code_map.items():
+        # 先精确匹配中文描述
+        for code, desc in code_map.items():
+            if cf_text == desc:
+                return f'{code} {cf_text}'
+        # 再模糊匹配
+        for code, desc in code_map.items():
             if cf_text in desc or desc in cf_text:
                 return f'{code} {cf_text}'
         return cf_text

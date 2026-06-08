@@ -296,4 +296,10 @@ class CFMatcher:
         result.unmatched_pay = [p for i, p in enumerate(pays) if i not in used_pay]
         result.unmatched_recv = [r for i, r in enumerate(recvs) if i not in used_recv]
 
+        # 从未匹配中过滤掉曼哈格已覆盖的记录（这些本就不应进入匹配池）
+        result.unmatched_pay = [p for p in result.unmatched_pay
+                                if self._dedup_key(p.company, p.counterparty, p.amount) not in dedup_set]
+        result.unmatched_recv = [r for r in result.unmatched_recv
+                                 if self._dedup_key(r.company, r.counterparty, r.amount) not in dedup_set]
+
         return result

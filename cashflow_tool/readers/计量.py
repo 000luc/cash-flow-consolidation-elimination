@@ -22,11 +22,13 @@ class 计量Reader(BaseReader):
     COL_CP1 = 19
     COL_CP2 = 20
 
-    def read(self, filepath: str) -> tuple[list[CFRecord], list[CFRecord]]:
+    def read(self, filepath: str, dedup_set: set[tuple] | None = None
+             ) -> tuple[list[CFRecord], list[CFRecord]]:
         wb = openpyxl.load_workbook(filepath)
         ws = wb[self.SHEET_NAME]
         pays: list[CFRecord] = []
         recvs: list[CFRecord] = []
+        seen_vnos: set[tuple] = set()  # (凭证号, 方向, 金额) 去重
 
         for row in ws.iter_rows(min_row=2, values_only=True):
             if not any(v is not None for v in row):
@@ -45,6 +47,16 @@ class 计量Reader(BaseReader):
             if len(row) > self.COL_CP2 and row[self.COL_CP2]:
                 cp_raw = str(row[self.COL_CP2])
             cp = self.clean_name(cp_raw)
+
+            # 曼哈格已覆盖的跳过
+            if dedup_set and self.make_dedup_key(company, cp, amount) in dedup_set:
+                continue
+
+            # 同一凭证号+方向+金额只保留一条（与原脚本一致）
+            dedup_tag = (vno, 'DR' if debit else 'CR', round(amount))
+            if dedup_tag in seen_vnos:
+                continue
+            seen_vnos.add(dedup_tag)
 
             rec = CFRecord(
                 company=company, counterparty=cp,

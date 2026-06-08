@@ -159,6 +159,7 @@ class App:
 
             pays, recvs = [], []
             prematched = []
+            dedup_set: set[tuple] = set()
 
             for i, (label, default_name) in enumerate(self.FILE_CONFIGS):
                 fp = self._file_vars[i].get()
@@ -172,8 +173,9 @@ class App:
                 reader = readers[label]
                 if label == '曼哈格明细':
                     prematched = reader.read_pairs(fp)
+                    dedup_set = 曼哈格Reader.build_dedup_set(prematched)
                 else:
-                    p, r = reader.read(fp)
+                    p, r = reader.read(fp, dedup_set)
                     pays.extend(p)
                     recvs.extend(r)
 

@@ -22,7 +22,8 @@ class 博林达Reader(BaseReader):
     COL_CHARACTER = 2
     COL_VOUCHER_NUM = 3
 
-    def read(self, filepath: str) -> tuple[list[CFRecord], list[CFRecord]]:
+    def read(self, filepath: str, dedup_set: set[tuple] | None = None
+             ) -> tuple[list[CFRecord], list[CFRecord]]:
         wb = openpyxl.load_workbook(filepath)
         ws = wb[self.SHEET_NAME]
         pays: list[CFRecord] = []
@@ -44,6 +45,12 @@ class 博林达Reader(BaseReader):
             amount = abs(debit or credit)
 
             cp = self._extract_counterparty(summary, acct_name)
+
+            # 曼哈格已覆盖的跳过
+            if dedup_set and self.make_dedup_key(
+                '深圳市博林达科技有限公司', cp, amount
+            ) in dedup_set:
+                continue
 
             rec = CFRecord(
                 company='深圳市博林达科技有限公司',

@@ -14,7 +14,20 @@ class 曼哈格Reader(BaseReader):
 
     SHEET_NAME = '3'
 
-    def read(self, filepath: str) -> tuple[list[CFRecord], list[CFRecord]]:
+    @staticmethod
+    def build_dedup_set(pairs: list[MatchedPair]) -> set[tuple]:
+        """从已配对数据构建去重集合
+
+        返回 {(公司, 对方公司, 四舍五入金额)}，用于在读取其他明细时跳过曼哈格已覆盖的记录。
+        """
+        keys: set[tuple] = set()
+        for p in pairs:
+            keys.add(BaseReader.make_dedup_key(p.payer, p.receiver, p.pay_amount))
+            keys.add(BaseReader.make_dedup_key(p.receiver, p.payer, p.pay_amount))
+        return keys
+
+    def read(self, filepath: str, dedup_set: set[tuple] | None = None
+             ) -> tuple[list[CFRecord], list[CFRecord]]:
         """曼哈格不产生独立的付款/收款记录，返回空列表"""
         return [], []
 

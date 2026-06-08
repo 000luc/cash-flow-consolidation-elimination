@@ -20,7 +20,8 @@ class 中安Reader(BaseReader):
     COL_INTERNAL_FLAG = 18
     COL_CP = 19
 
-    def read(self, filepath: str) -> tuple[list[CFRecord], list[CFRecord]]:
+    def read(self, filepath: str, dedup_set: set[tuple] | None = None
+             ) -> tuple[list[CFRecord], list[CFRecord]]:
         wb = openpyxl.load_workbook(filepath)
         ws = wb[self.SHEET_NAME]
         pays: list[CFRecord] = []
@@ -41,6 +42,10 @@ class 中安Reader(BaseReader):
             credit = row[self.COL_CREDIT] or 0
             amount = abs(debit or credit)
             cp = self.clean_name(str(row[self.COL_CP] or ''))
+
+            # 曼哈格已覆盖的跳过
+            if dedup_set and self.make_dedup_key(company, cp, amount) in dedup_set:
+                continue
 
             rec = CFRecord(
                 company=company, counterparty=cp,
