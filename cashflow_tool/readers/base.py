@@ -52,6 +52,11 @@ class CFHelper:
     """现金流指标判断工具"""
 
     @staticmethod
+    def extract_cf_code(cf_text: str) -> str:
+        """从CF文本中提取CI代码，如 'CI1.02.04.01 支付...' → 'CI1.02.04.01'"""
+        return BaseReader.extract_cf_code(cf_text)
+
+    @staticmethod
     def is_payment(cf_text: str, cf_code: str = '') -> bool:
         """是否为付款类(流出)"""
         if cf_code:
