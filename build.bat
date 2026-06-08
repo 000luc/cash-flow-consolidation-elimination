@@ -9,7 +9,7 @@ echo 正在打包，请稍候...
 py -m PyInstaller ^
     --onefile ^
     --windowed ^
-    --name "现金流内部抵消工具_v2" ^
+    --name "现金流内部抵消工具_v1.1.0" ^
     --hidden-import openpyxl ^
     --exclude-module numpy ^
     --exclude-module PIL ^
