@@ -15,8 +15,7 @@ py -m PyInstaller ^
     --exclude-module PIL ^
     --exclude-module lxml ^
     --add-data "cashflow_tool;cashflow_tool" ^
-    --add-data "明细;明细" ^
-    --distpath .\dist ^
+--distpath .\dist ^
     --workpath .\build ^
     --specpath .\build ^
     --noconfirm ^
