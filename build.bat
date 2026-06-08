@@ -11,6 +11,9 @@ py -m PyInstaller ^
     --windowed ^
     --name "现金流内部抵消工具_v2" ^
     --hidden-import openpyxl ^
+    --exclude-module numpy ^
+    --exclude-module PIL ^
+    --exclude-module lxml ^
     --add-data "cashflow_tool;cashflow_tool" ^
     --add-data "明细;明细" ^
     --distpath .\dist ^
